@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "716990277442",
+    "firebase_url": "https://chessblitzchampions.firebaseio.com",
+    "project_id": "chessblitzchampions",
+    "storage_bucket": "chessblitzchampions.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716990277442:android:6e59d9ef9d0690d1e34adb",
+        "android_client_info": {
+          "package_name": "com.nvp293.cbc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "716990277442-ui73to7g4dgo6o44lp2cg4qgfihedi19.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nvp293.cbc",
+            "certificate_hash": "cb60997deac09919dc9de8c55d97d65d9bd57b93"
+          }
+        },
+        {
+          "client_id": "716990277442-mjp4rhdvasane8dif0f26vgb98aurhfj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnij5iy5f7MSnDJM5OawN-Ak5ltR9CHQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "716990277442-mjp4rhdvasane8dif0f26vgb98aurhfj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
