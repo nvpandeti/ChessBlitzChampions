@@ -13,6 +13,16 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.gms.common.util.IOUtils.toByteArray
+import android.content.pm.PackageManager
+import android.content.pm.PackageInfo
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.util.Base64
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,11 +36,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build())
+            AuthUI.IdpConfig.GoogleBuilder().build(),
+            AuthUI.IdpConfig.FacebookBuilder().build())
 
         // Create and launch sign-in intent
         startActivityForResult(
@@ -56,6 +66,8 @@ class MainActivity : AppCompatActivity() {
                 }
         }
         */
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
