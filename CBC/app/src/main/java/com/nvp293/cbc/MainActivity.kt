@@ -66,7 +66,15 @@ class MainActivity : AppCompatActivity() {
                 }
         }
         */
-
+        findMatchBut.setOnClickListener {
+            val findMatchIntent = Intent(this, ChessBoardActivity::class.java)
+            val myExtras = Bundle()
+            val user = FirebaseAuth.getInstance().currentUser
+            myExtras.putString("name", user?.displayName);
+            findMatchIntent.putExtras(myExtras)
+            val result = 1
+            startActivityForResult(findMatchIntent, result)
+        }
 
     }
 

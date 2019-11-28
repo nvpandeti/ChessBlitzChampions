@@ -27,6 +27,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/findMatchBut"
         android:text="FIND MATCH"
         android:textSize="16pt"
         android:backgroundTint="@color/colorPrimaryDark"
