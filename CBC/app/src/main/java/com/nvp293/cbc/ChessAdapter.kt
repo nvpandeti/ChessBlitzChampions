@@ -10,47 +10,45 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.Toast
+import java.lang.Exception
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 
 
-class ChessAdapter(private val mContext: Context,
-                   private val board: Array<ChessPiece>) : BaseAdapter() {
+class ChessAdapter(private val mContext: Context)
+    : ListAdapter<ChessPiece, ChessAdapter.VH>(PieceDiff()) {
 
-    private var lightBkgColor = Color.parseColor("#D1A1A1")
-    private var darkBkgColor = Color.parseColor("#22 5522")
+    class PieceDiff : DiffUtil.ItemCallback<ChessPiece>() {
 
-    override fun getCount(): Int {
-        return board.size
+        override fun areItemsTheSame(oldItem: ChessPiece, newItem: ChessPiece): Boolean {
+            return oldItem.xPosition == newItem.xPosition
+                    && oldItem.yPosition == newItem.yPosition
+        }
+
+        override fun areContentsTheSame(oldItem: ChessPiece, newItem: ChessPiece): Boolean {
+            return oldItem.side == newItem.side
+                    && oldItem.type == newItem.type
+                    && oldItem.xPosition == newItem.xPosition
+                    && oldItem.yPosition == newItem.yPosition
+        }
     }
 
-    override fun getItemId(position: Int): Long {
-        return 0
-    }
+    inner class VH(itemView: View)
+        : RecyclerView.ViewHolder(itemView) {
 
-    // 4
-    override fun getItem(position: Int): ChessPiece? {
-        return board[position]
-    }
+        var bkgIV = itemView.findViewById<ImageView>(R.id.square_background)
+        var chessIV = itemView.findViewById<ImageView>(R.id.piece)
 
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-
-        var piece = board[position]
-
-        if(convertView == null) {
-            val layoutInflater = LayoutInflater.from(mContext)
-            var view = layoutInflater.inflate(R.layout.board_square, null)
-            view.setOnClickListener{
-                Toast.makeText(mContext, "position $position", Toast.LENGTH_SHORT).show()
-            }
-            var bkgIV = view.findViewById<ImageView>(R.id.square_background)
-            var chessIV = view.findViewById<ImageView>(R.id.piece)
-
-            var row = position / 8
-            var col = position % 8
+        fun bind(piece : ChessPiece?, position: Int) {
+            var row = position % 8
+            var col = position / 8
             if((row + col) % 2 == 0) {
-                bkgIV.setBackgroundColor(darkBkgColor)
+                //bkgIV.setBackgroundColor(darkBkgColor)
+                bkgIV.setBackgroundColor(mContext.getColor(R.color.darkSquare))
             } else {
-                bkgIV.setBackgroundColor(lightBkgColor)
+                //bkgIV.setBackgroundColor(lightBkgColor)
+                bkgIV.setBackgroundColor(mContext.getColor(R.color.lightSquare))
             }
 
             if(piece != null) {
@@ -63,6 +61,7 @@ class ChessAdapter(private val mContext: Context,
                             ChessPieceType.PAWN -> chessIV.setImageResource(R.drawable.ic_white_pawn)
                             ChessPieceType.QUEEN -> chessIV.setImageResource(R.drawable.ic_white_queen)
                             ChessPieceType.ROOK -> chessIV.setImageResource(R.drawable.ic_white_rook)
+                            else -> {}
                         }
                     }
                     ChessPieceSide.BLACK -> {
@@ -73,15 +72,23 @@ class ChessAdapter(private val mContext: Context,
                             ChessPieceType.PAWN -> chessIV.setImageResource(R.drawable.ic_black_pawn)
                             ChessPieceType.QUEEN -> chessIV.setImageResource(R.drawable.ic_black_queen)
                             ChessPieceType.ROOK -> chessIV.setImageResource(R.drawable.ic_black_rook)
+                            else -> {}
                         }
                     }
+                    else -> {}
                 }
             }
-
-            return view
         }
-
-        return convertView
     }
 
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val itemView = LayoutInflater.from(mContext)
+            .inflate(R.layout.board_square, parent, false)
+        return VH(itemView)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        holder.bind(getItem(position), position)
+    }
 }
