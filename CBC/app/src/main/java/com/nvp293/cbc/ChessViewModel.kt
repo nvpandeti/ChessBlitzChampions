@@ -10,8 +10,16 @@ class ChessViewModel : ViewModel() {
         value = initChessBoard().toMutableList()
     }
 
+    private var selectedPiece = MutableLiveData<ChessPiece>().apply {
+        value = null
+    }
+
     fun observeChessBoardList() : LiveData<List<ChessPiece>> {
         return chessBoardList
+    }
+
+    fun observeSelectedPiece() : LiveData<ChessPiece> {
+        return selectedPiece
     }
 
     fun initChessBoard() : Array<ChessPiece> {

@@ -31,24 +31,46 @@ class ChessAdapter(private val mContext: Context)
                     && oldItem.type == newItem.type
                     && oldItem.xPosition == newItem.xPosition
                     && oldItem.yPosition == newItem.yPosition
+                    && oldItem.highlight == newItem.highlight
         }
     }
 
     inner class VH(itemView: View)
         : RecyclerView.ViewHolder(itemView) {
 
-        var bkgIV = itemView.findViewById<ImageView>(R.id.square_background)
-        var chessIV = itemView.findViewById<ImageView>(R.id.piece)
+        private var bkgIV = itemView.findViewById<ImageView>(R.id.square_background)
+        private var chessIV = itemView.findViewById<ImageView>(R.id.piece)
+        private var pos = -1
+
+        init {
+            itemView.setOnClickListener {
+                if(pos >= 0) {
+                    var piece = getItem(pos)
+                    piece.highlight = !piece.highlight
+                    notifyDataSetChanged()
+                }
+
+            }
+        }
 
         fun bind(piece : ChessPiece?, position: Int) {
+            pos = position
             var row = position % 8
             var col = position / 8
             if((row + col) % 2 == 0) {
-                //bkgIV.setBackgroundColor(darkBkgColor)
-                bkgIV.setBackgroundColor(mContext.getColor(R.color.darkSquare))
+                if(piece?.highlight == true) {
+                    bkgIV.setBackgroundColor(mContext.getColor(R.color.darkSquareHighlight))
+                }
+                else {
+                    bkgIV.setBackgroundColor(mContext.getColor(R.color.darkSquare))
+                }
             } else {
-                //bkgIV.setBackgroundColor(lightBkgColor)
-                bkgIV.setBackgroundColor(mContext.getColor(R.color.lightSquare))
+                if(piece?.highlight == true) {
+                    bkgIV.setBackgroundColor(mContext.getColor(R.color.lightSquareHighlight))
+                }
+                else {
+                    bkgIV.setBackgroundColor(mContext.getColor(R.color.lightSquare))
+                }
             }
 
             if(piece != null) {

@@ -4,8 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="lightSquare">#D1A1A1</color>
-    <color name="darkSquare">#225522</color>
+    <color name="lightSquare">#C19191</color>
+    <color name="darkSquare">#124512</color>
 
-
+    <color name="lightSquareHighlight">#F1C1C1</color>
+    <color name="darkSquareHighlight">#427542</color>
 </resources>

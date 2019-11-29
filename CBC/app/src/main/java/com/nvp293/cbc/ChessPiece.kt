@@ -6,7 +6,7 @@ enum class ChessPieceType {
 
 enum class ChessPieceSide { WHITE, BLACK, EMPTY}
 
-data class ChessPiece(var side: ChessPieceSide, var type: ChessPieceType, var xPosition: Int = -1, var yPosition: Int = -1) {
+data class ChessPiece(var side: ChessPieceSide, var type: ChessPieceType, var xPosition: Int = -1, var yPosition: Int = -1, var highlight: Boolean = false) {
     override fun toString(): String {
         return "$side $type($xPosition, $yPosition)"
     }
