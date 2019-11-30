@@ -121,43 +121,43 @@ open class ChessGrid(var viewModel : ChessViewModel) {
         when(piece.type) {
             ChessPieceType.PAWN -> {
                 if(piece.side == ChessPieceSide.WHITE) {
-                    checkPos = checkIfEmpty(piece.yPosition - 1, piece.xPosition)
+                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition, ChessPieceSide.EMPTY)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                         if(piece.notYetMoved) {
-                            checkPos = checkIfEmpty(piece.yPosition - 2, piece.xPosition)
+                            checkPos = checkIfSide(piece.yPosition - 2, piece.xPosition, ChessPieceSide.EMPTY)
                             if(checkPos != -1) {
                                 squaresToHighlight.add(checkPos)
                             }
                         }
                     }
-                    checkPos = checkIfEnemy(piece.yPosition - 1, piece.xPosition - 1, ChessPieceSide.BLACK)
+                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition - 1, ChessPieceSide.BLACK)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                     }
 
-                    checkPos = checkIfEnemy(piece.yPosition - 1, piece.xPosition + 1, ChessPieceSide.BLACK)
+                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition + 1, ChessPieceSide.BLACK)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                     }
 
                 } else if (piece.side == ChessPieceSide.BLACK) {
-                    checkPos = checkIfEmpty(piece.yPosition + 1, piece.xPosition)
+                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition, ChessPieceSide.EMPTY)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                         if(piece.notYetMoved) {
-                            checkPos = checkIfEmpty(piece.yPosition + 2, piece.xPosition)
+                            checkPos = checkIfSide(piece.yPosition + 2, piece.xPosition, ChessPieceSide.EMPTY)
                             if(checkPos != -1) {
                                 squaresToHighlight.add(checkPos)
                             }
                         }
                     }
-                    checkPos = checkIfEnemy(piece.yPosition + 1, piece.xPosition - 1, ChessPieceSide.WHITE)
+                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition - 1, ChessPieceSide.WHITE)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                     }
 
-                    checkPos = checkIfEnemy(piece.yPosition + 1, piece.xPosition + 1, ChessPieceSide.WHITE)
+                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition + 1, ChessPieceSide.WHITE)
                     if(checkPos != -1) {
                         squaresToHighlight.add(checkPos)
                     }
@@ -165,17 +165,168 @@ open class ChessGrid(var viewModel : ChessViewModel) {
             }
             ChessPieceType.ROOK -> {
 
+                var dirs = listOf<Pair<Int, Int>>(Pair(0,1),Pair(0,-1),Pair(1,0),Pair(-1,0))
+
+                var enemySide = if(piece.side == ChessPieceSide.WHITE) ChessPieceSide.BLACK else ChessPieceSide.WHITE
+
+                for(dir in dirs) {
+                    var dist = 1
+                    loop@ while (true) {
+                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
+                        var y = piece.yPosition + dist * dir.first
+                        var x = piece.xPosition + dist * dir.second
+                        checkPos = y * 8 + x
+                        if(checkBounds(y, x)) {
+                            when( boardArray[y][x].side) {
+                                enemySide -> {
+                                    squaresToHighlight.add(checkPos)
+                                    break@loop
+                                }
+                                piece.side -> {
+                                    break@loop
+                                }
+                                ChessPieceSide.EMPTY -> {
+                                    squaresToHighlight.add(checkPos)
+                                }
+                            }
+                        } else {
+                            break
+                        }
+                        dist += 1
+                    }
+                }
             }
             ChessPieceType.KNIGHT -> {
+                var dirs = listOf<Pair<Int, Int>>(Pair(2,1),Pair(2,-1),Pair(1,2),Pair(-1,2), Pair(-2,1),Pair(-2,-1),Pair(1,-2),Pair(-1,-2))
 
+                var enemySide = if(piece.side == ChessPieceSide.WHITE) ChessPieceSide.BLACK else ChessPieceSide.WHITE
+
+                for(dir in dirs) {
+                    var dist = 1
+                    loop@ while (dist == 1) {
+                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
+                        var y = piece.yPosition + dist * dir.first
+                        var x = piece.xPosition + dist * dir.second
+                        checkPos = y * 8 + x
+                        if(checkBounds(y, x)) {
+                            when( boardArray[y][x].side) {
+                                enemySide -> {
+                                    squaresToHighlight.add(checkPos)
+                                    break@loop
+                                }
+                                piece.side -> {
+                                    break@loop
+                                }
+                                ChessPieceSide.EMPTY -> {
+                                    squaresToHighlight.add(checkPos)
+                                }
+                            }
+                        } else {
+                            break
+                        }
+                        dist += 1
+                    }
+                }
             }
             ChessPieceType.BISHOP -> {
+
+                var dirs = listOf<Pair<Int, Int>>(Pair(1,1),Pair(-1,-1),Pair(1,-1),Pair(-1,1))
+
+                var enemySide = if(piece.side == ChessPieceSide.WHITE) ChessPieceSide.BLACK else ChessPieceSide.WHITE
+
+                for(dir in dirs) {
+                    var dist = 1
+                    loop@ while (true) {
+                        var y = piece.yPosition + dist * dir.first
+                        var x = piece.xPosition + dist * dir.second
+                        checkPos = y * 8 + x
+                        if(checkBounds(y, x)) {
+                            when( boardArray[y][x].side) {
+                                enemySide -> {
+                                    squaresToHighlight.add(checkPos)
+                                    break@loop
+                                }
+                                piece.side -> {
+                                    break@loop
+                                }
+                                ChessPieceSide.EMPTY -> {
+                                    squaresToHighlight.add(checkPos)
+                                }
+                            }
+                        } else {
+                            break
+                        }
+                        dist += 1
+                    }
+                }
 
             }
             ChessPieceType.QUEEN -> {
 
+                var dirs = listOf<Pair<Int, Int>>(Pair(0,1),Pair(0,-1),Pair(1,0),Pair(-1,0), Pair(1,1),Pair(-1,-1),Pair(1,-1),Pair(-1,1))
+
+                var enemySide = if(piece.side == ChessPieceSide.WHITE) ChessPieceSide.BLACK else ChessPieceSide.WHITE
+
+                for(dir in dirs) {
+                    var dist = 1
+                    loop@ while (true) {
+                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
+                        var y = piece.yPosition + dist * dir.first
+                        var x = piece.xPosition + dist * dir.second
+                        checkPos = y * 8 + x
+                        if(checkBounds(y, x)) {
+                            when( boardArray[y][x].side) {
+                                enemySide -> {
+                                    squaresToHighlight.add(checkPos)
+                                    break@loop
+                                }
+                                piece.side -> {
+                                    break@loop
+                                }
+                                ChessPieceSide.EMPTY -> {
+                                    squaresToHighlight.add(checkPos)
+                                }
+                            }
+                        } else {
+                            break
+                        }
+                        dist += 1
+                    }
+                }
+
             }
             ChessPieceType.KING -> {
+
+                var dirs = listOf<Pair<Int, Int>>(Pair(0,1),Pair(0,-1),Pair(1,0),Pair(-1,0), Pair(1,1),Pair(-1,-1),Pair(1,-1),Pair(-1,1))
+
+                var enemySide = if(piece.side == ChessPieceSide.WHITE) ChessPieceSide.BLACK else ChessPieceSide.WHITE
+
+                for(dir in dirs) {
+                    var dist = 1
+                    loop@ while (dist == 1) {
+                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
+                        var y = piece.yPosition + dist * dir.first
+                        var x = piece.xPosition + dist * dir.second
+                        checkPos = y * 8 + x
+                        if(checkBounds(y, x)) {
+                            when( boardArray[y][x].side) {
+                                enemySide -> {
+                                    squaresToHighlight.add(checkPos)
+                                    break@loop
+                                }
+                                piece.side -> {
+                                    break@loop
+                                }
+                                ChessPieceSide.EMPTY -> {
+                                    squaresToHighlight.add(checkPos)
+                                }
+                            }
+                        } else {
+                            break
+                        }
+                        dist += 1
+                    }
+                }
 
             }
             ChessPieceType.EMPTY -> {
@@ -206,16 +357,8 @@ open class ChessGrid(var viewModel : ChessViewModel) {
         return yPos in 0..7 && xPos in 0..7
     }
 
-    fun checkIfEmpty(yPos: Int, xPos: Int) : Int{
-        if(checkBounds(yPos, xPos)
-            && boardArray[yPos][xPos].side.equals(ChessPieceSide.EMPTY)) {
-            return yPos * 8 + xPos
-        } else {
-            return -1
-        }
-    }
 
-    fun checkIfEnemy(yPos: Int, xPos: Int, enemySide: ChessPieceSide) : Int{
+    fun checkIfSide(yPos: Int, xPos: Int, enemySide: ChessPieceSide) : Int{
         if(checkBounds(yPos, xPos)
             && boardArray[yPos][xPos].side.equals(enemySide)) {
             return yPos * 8 + xPos
