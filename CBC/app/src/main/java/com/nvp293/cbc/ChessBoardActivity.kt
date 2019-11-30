@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.GridLayout
 import androidx.lifecycle.Observer
@@ -17,6 +18,7 @@ class ChessBoardActivity : AppCompatActivity() {
 
     private lateinit var viewModel : ChessViewModel
     private lateinit var chessAdapter : ChessAdapter
+    private lateinit var chessGrid : ChessGrid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,22 +31,27 @@ class ChessBoardActivity : AppCompatActivity() {
         boardFrame.addView(gridView)
         */
 
+        viewModel = ViewModelProviders.of(this)[ChessViewModel::class.java]
+
+        chessGrid = ChessGrid(viewModel)
+
+        viewModel.observeChessBoardList().observe(this, Observer {
+            var newList = ArrayList<ChessPiece>()
+            for (p in it) {
+                newList.add(ChessPiece(p.side, p.type, p.xPosition, p.yPosition, p.highlight, p.notYetMoved))
+            }
+            chessAdapter.submitList(newList)
+        })
+
+        Log.i("CreateView", "ChessBoardActivity")
+
         chessAdapter = ChessAdapter(this)
         recyclerView.adapter = chessAdapter
         recyclerView.layoutManager = GridLayoutManager(this, 8, GridLayoutManager.VERTICAL, false)
         recyclerView.isNestedScrollingEnabled = false
+        recyclerView.isMotionEventSplittingEnabled = false
 
+        chessAdapter.setChessGrid(chessGrid)
 
-
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        viewModel = ViewModelProviders.of(this)[ChessViewModel::class.java]
-
-        viewModel.observeChessBoardList().observe(this, Observer {
-            chessAdapter.submitList(it)
-        })
-
-        return super.onCreateView(name, context, attrs)
     }
 }

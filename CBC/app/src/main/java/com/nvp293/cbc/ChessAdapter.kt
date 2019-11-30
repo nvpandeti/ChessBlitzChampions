@@ -3,6 +3,7 @@ package com.nvp293.cbc
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -19,6 +20,12 @@ import androidx.recyclerview.widget.RecyclerView
 class ChessAdapter(private val mContext: Context)
     : ListAdapter<ChessPiece, ChessAdapter.VH>(PieceDiff()) {
 
+    private lateinit var chessGrid : ChessGrid
+
+    fun setChessGrid(cGrid: ChessGrid) {
+        chessGrid = cGrid
+    }
+
     class PieceDiff : DiffUtil.ItemCallback<ChessPiece>() {
 
         override fun areItemsTheSame(oldItem: ChessPiece, newItem: ChessPiece): Boolean {
@@ -31,7 +38,7 @@ class ChessAdapter(private val mContext: Context)
                     && oldItem.type == newItem.type
                     && oldItem.xPosition == newItem.xPosition
                     && oldItem.yPosition == newItem.yPosition
-                    && oldItem.highlight == newItem.highlight
+                    && oldItem.highlight == newItem.highlight && false
         }
     }
 
@@ -43,20 +50,19 @@ class ChessAdapter(private val mContext: Context)
         private var pos = -1
 
         init {
-            itemView.setOnClickListener {
+            bkgIV.setOnClickListener {
                 if(pos >= 0) {
-                    var piece = getItem(pos)
-                    piece.highlight = !piece.highlight
-                    notifyDataSetChanged()
+                    chessGrid.userClicked(pos)
                 }
-
             }
         }
 
         fun bind(piece : ChessPiece?, position: Int) {
             pos = position
-            var row = position % 8
-            var col = position / 8
+            var row = position / 8
+            var col = position % 8
+            //Log.i("bind", "pos $col $row ${piece?.side} ${piece?.type}")
+
             if((row + col) % 2 == 0) {
                 if(piece?.highlight == true) {
                     bkgIV.setBackgroundColor(mContext.getColor(R.color.darkSquareHighlight))
@@ -74,6 +80,7 @@ class ChessAdapter(private val mContext: Context)
             }
 
             if(piece != null) {
+                //Log.i("bind2", "pos $col $row ${piece?.side} ${piece?.type}")
                 when(piece.side){
                     ChessPieceSide.WHITE -> {
                         when(piece.type) {
@@ -107,10 +114,16 @@ class ChessAdapter(private val mContext: Context)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val itemView = LayoutInflater.from(mContext)
             .inflate(R.layout.board_square, parent, false)
-        return VH(itemView)
+        var holder = VH(itemView)
+        //holder.setIsRecyclable(false)
+        return holder
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bind(getItem(position), position)
+    }
+
+    override fun submitList(list: List<ChessPiece>?) {
+        super.submitList(if (list != null) ArrayList(list) else null)
     }
 }
