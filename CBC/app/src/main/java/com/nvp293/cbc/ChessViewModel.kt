@@ -29,7 +29,6 @@ class ChessViewModel : ViewModel() {
     }
 
     fun highlightSquare(position: Int) {
-        Log.i("HighlightSquare", "$position")
         chessBoardList.value?.get(position)?.highlight = true
     }
 

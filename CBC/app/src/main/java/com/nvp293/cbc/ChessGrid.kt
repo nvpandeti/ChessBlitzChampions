@@ -4,8 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.Log
 import androidx.lifecycle.Observer
+import kotlinx.coroutines.processNextEventInCurrentThread
 import java.lang.Exception
 import java.lang.IndexOutOfBoundsException
+import java.lang.Math.abs
 import java.util.*
 
 /**
@@ -172,7 +174,6 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                 for(dir in dirs) {
                     var dist = 1
                     loop@ while (true) {
-                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
                         checkPos = y * 8 + x
@@ -204,7 +205,6 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                 for(dir in dirs) {
                     var dist = 1
                     loop@ while (dist == 1) {
-                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
                         checkPos = y * 8 + x
@@ -270,7 +270,6 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                 for(dir in dirs) {
                     var dist = 1
                     loop@ while (true) {
-                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
                         checkPos = y * 8 + x
@@ -328,6 +327,27 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                     }
                 }
 
+                if(piece.notYetMoved && boardArray[piece.yPosition][0].notYetMoved) {
+                    var spacesOpen = true
+                    for(i in 1 until piece.xPosition) {
+                        if(boardArray[piece.yPosition][i].side != ChessPieceSide.EMPTY)
+                            spacesOpen = false
+                    }
+                    checkPos = piece.yPosition * 8 + piece.xPosition - 2
+                    if(spacesOpen)
+                        squaresToHighlight.add(checkPos)
+                }
+                if(piece.notYetMoved && boardArray[piece.yPosition][7].notYetMoved) {
+                    var spacesOpen = true
+                    for(i in (piece.xPosition + 1) until 7) {
+                        if(boardArray[piece.yPosition][i].side != ChessPieceSide.EMPTY)
+                            spacesOpen = false
+                    }
+                    checkPos = piece.yPosition * 8 + piece.xPosition + 2
+                    if(spacesOpen)
+                        squaresToHighlight.add(checkPos)
+                }
+
             }
             ChessPieceType.EMPTY -> {
 
@@ -340,9 +360,18 @@ open class ChessGrid(var viewModel : ChessViewModel) {
     }
 
     fun movePiece(oldSquare : ChessPiece, newSquare : ChessPiece) {
+        if(oldSquare.type == ChessPieceType.KING && abs(oldSquare.xPosition - newSquare.xPosition) == 2) {
+            if(newSquare.xPosition == 6)
+                movePiece(boardArray[oldSquare.yPosition][7], boardArray[oldSquare.yPosition][5])
+            else {
+                movePiece(boardArray[oldSquare.yPosition][0], boardArray[oldSquare.yPosition][3])
+            }
+        }
         newSquare.side = oldSquare.side
         newSquare.type = oldSquare.type
         oldSquare.empty()
+        oldSquare.notYetMoved = false
+
     }
 
     fun getPieceAtIndex(i : Int) : ChessPiece {
