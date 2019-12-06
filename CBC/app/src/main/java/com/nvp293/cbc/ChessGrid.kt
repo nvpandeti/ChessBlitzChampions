@@ -106,7 +106,7 @@ open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : C
                 } else {
                     currentTurn = ChessPieceSide.WHITE
                 }
-                gameSynchronizer?.sendMoveMsg("${currentlySelectedPiece?.xPosition},${currentlySelectedPiece?.yPosition},${piece.xPosition},${piece.yPosition},345")
+                gameSynchronizer?.sendMoveMsg("${currentlySelectedPiece?.yPosition},${currentlySelectedPiece?.xPosition},${piece.yPosition},${piece.xPosition},345")
                 currentlySelectedPiece = null
                 updateViewModel()
             } else {
