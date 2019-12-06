@@ -5,7 +5,7 @@ import com.google.firebase.database.*
 import java.util.*
 
 class FirebaseGameSynchronizer(
-    private val mMovesRecordList: DatabaseReference,
+    private val mGameRecord: DatabaseReference,
     private var mMessageModulator: Modulator?
 ) : ChildEventListener {
     private var mMoveIndex: Int = 0
@@ -17,6 +17,8 @@ class FirebaseGameSynchronizer(
 
     internal var isSynced = false
 
+    private val mMovesRecordList: DatabaseReference
+
     private fun resyncAll() {
         while (!mUnsyncBuffer.isEmpty())
             mMessageModulator!!.onReceiveMove(true, mUnsyncBuffer.pop())
@@ -25,6 +27,7 @@ class FirebaseGameSynchronizer(
     init {
         mMoveIndex = 0
         mSelfMoveSoph = 0
+        mMovesRecordList = mGameRecord.child("/M")
         mMovesRecordList.addChildEventListener(this)
     }
 
@@ -104,15 +107,37 @@ class FirebaseGameSynchronizer(
         fun onReceiveMove(isSyncingPast: Boolean, encodedMsg: String)
     }
 
+    fun createUser(side : ChessPieceSide, uid : String) {
+        mGameRecord.child("${side}User")
+            .setValue(uid)
+    }
+
+    fun getUserUid(side : ChessPieceSide, userUidCallback: (String?) -> Unit) {
+        val userListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val uid = dataSnapshot.getValue(String::class.java)
+                userUidCallback(uid)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w("getUserUid", "loadPost:onCancelled", databaseError.toException())
+                // ...
+                userUidCallback(null)
+            }
+        }
+        mGameRecord.child("${side}User").addListenerForSingleValueEvent(userListener)
+    }
+
     companion object {
 
         fun newInstance(
-            moveListRecordPath: String,
+            mGameRecord: String,
             modulator: Modulator
         ): FirebaseGameSynchronizer {
             return FirebaseGameSynchronizer(
                 FirebaseDatabase.getInstance()
-                    .getReference(moveListRecordPath), modulator
+                    .getReference(mGameRecord), modulator
             )
         }
     }

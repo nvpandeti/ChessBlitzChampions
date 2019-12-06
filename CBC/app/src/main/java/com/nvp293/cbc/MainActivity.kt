@@ -21,6 +21,7 @@ import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.util.Base64
+import com.google.firebase.database.DatabaseReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
@@ -32,6 +33,9 @@ class MainActivity : AppCompatActivity() {
         private const val RC_SIGN_IN = 123
         private const val RC_SETTINGS = 100
     }
+
+    var matchMaker : FirebaseMatchMaker? = null
+    var findingMatch = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,13 +59,30 @@ class MainActivity : AppCompatActivity() {
             RC_SIGN_IN)
 
         findMatchBut.setOnClickListener {
-            val findMatchIntent = Intent(this, ChessBoardActivity::class.java)
-            val myExtras = Bundle()
-            val user = FirebaseAuth.getInstance().currentUser
-            myExtras.putString("name", user?.displayName)
-            findMatchIntent.putExtras(myExtras)
-            val result = 1
-            startActivityForResult(findMatchIntent, result)
+            if(!findingMatch) {
+                matchMaker = FirebaseMatchMaker.newInstance (object : FirebaseMatchMaker.OnMatchMadeCallback {
+                    override fun run(c: FirebaseMatchMaker) {
+                        val findMatchIntent = Intent(applicationContext, ChessBoardActivity::class.java)
+                        val myExtras = Bundle()
+                        val user = FirebaseAuth.getInstance().currentUser
+                        myExtras.putString("mGamePath", c.mGamePath)
+                        myExtras.putBoolean("isWhite", c.isThisWhite())
+                        findMatchIntent.putExtras(myExtras)
+                        findingMatch = false
+                        findMatchBut.text = "FIND MATCH"
+                        val result = 1
+                        startActivityForResult(findMatchIntent, result)
+                    }
+                })
+                matchMaker?.findMatch()
+                findMatchBut.text = "Searching"
+                findingMatch = true
+            } else {
+                matchMaker?.stop()
+                findMatchBut.text = "FIND MATCH"
+                findingMatch = false
+            }
+
         }
 
         settings.setOnClickListener {
@@ -112,5 +133,19 @@ class MainActivity : AppCompatActivity() {
 
     fun getDisplayString(user: User) : String{
         return "Welcome back, ${user.blitzId}\nELO: ${user.elo}\nWins: ${user.wins}"
+    }
+
+    override fun onStop() {
+        if(matchMaker != null) {
+            matchMaker?.stop()
+        }
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        if(matchMaker != null) {
+            matchMaker?.stop()
+        }
+        super.onDestroy()
     }
 }

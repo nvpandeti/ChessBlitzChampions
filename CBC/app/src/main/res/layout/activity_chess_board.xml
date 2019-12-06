@@ -26,5 +26,60 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/recyclerView">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvOppo"
+            android:text=""
+            android:textSize="9pt"
+            android:textColor="@color/lightSquareHighlight"
+            android:background="@drawable/rounded_edit_text"
+            android:layout_gravity="start"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/timerOppo"
+            android:text=""
+            android:textSize="12pt"
+            android:textColor="@color/lightSquareHighlight"
+            android:background="@drawable/rounded_edit_text"
+            android:layout_gravity="end"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMe"
+            android:text=""
+            android:textSize="9pt"
+            android:textColor="@color/lightSquareHighlight"
+            android:background="@drawable/rounded_edit_text"
+            android:layout_gravity="start"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/timerMe"
+            android:text=""
+            android:textSize="12pt"
+            android:textColor="@color/lightSquareHighlight"
+            android:background="@drawable/rounded_edit_text"
+            android:layout_gravity="end"/>
+
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

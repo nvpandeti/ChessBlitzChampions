@@ -9,8 +9,19 @@ import kotlin.coroutines.coroutineContext
 
 class Timer(private var TV: TextView) {
     private var endMillis = 0L // Only read, not Atomic
+    private var paused :Boolean = false
+    private var pausedMillis = 0L
 
     fun millisLeft(): Long {return endMillis - System.currentTimeMillis()}
+
+    fun pause(millisLeft : Long) {
+        paused = true
+        pausedMillis = millisLeft
+    }
+
+    fun unPause() {
+        paused = false
+    }
 
     suspend fun timerCo(durationMillis: Long) {
         endMillis = System.currentTimeMillis() + durationMillis
@@ -40,6 +51,9 @@ class Timer(private var TV: TextView) {
             )
             delay(delayMillis)
             currentMillis = System.currentTimeMillis()
+            if(paused) {
+                endMillis = pausedMillis + currentMillis
+            }
         }
         TV.text = "0:00.0"
     }

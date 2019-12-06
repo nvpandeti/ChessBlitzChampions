@@ -59,9 +59,10 @@ class FirebaseMatchMaker private constructor(
         val RANDOM_ROOM_ID = "/Globl"
         val ROOM_ID = "/GameRooms"
         val GAMES_RECORD = "/OpenGameMoves"
-        fun newInstance(userRoom: String, onComplete: OnMatchMadeCallback): FirebaseMatchMaker {
+        fun newInstance(onComplete: OnMatchMadeCallback): FirebaseMatchMaker {
+            var room = FirebaseDatabase.getInstance().getReference("$ROOM_ID").push()
             return FirebaseMatchMaker(
-                FirebaseDatabase.getInstance().getReference("$ROOM_ID/$userRoom"), onComplete
+                FirebaseDatabase.getInstance().getReference("$ROOM_ID/${room.key}"), onComplete
             )
         }
     }
@@ -69,16 +70,16 @@ class FirebaseMatchMaker private constructor(
 
 
 
-    protected var mIsThisOpener: Boolean = false
+    protected var mIsThisWhite: Boolean = false
 
-    protected fun onMatchFound(isOpener: Boolean) {
-        mIsThisOpener = isOpener
-        mLocalPlayerIndex = if (isOpener) 1 else 0
+    protected fun onMatchFound(isWhite: Boolean) {
+        mIsThisWhite = isWhite
+        mLocalPlayerIndex = if (isWhite) 1 else 0
         mOnComplete.run(this)
     }
 
-    fun isThisOpener(): Boolean {
-        return mIsThisOpener
+    fun isThisWhite(): Boolean {
+        return mIsThisWhite
     }
 
     interface OnFailCallback {
@@ -95,9 +96,11 @@ class FirebaseMatchMaker private constructor(
 
         override fun doTransaction(rooms: MutableData): Transaction.Result {
             for (challengeData in rooms.getChildren()) {
+                Log.d("MatchMaker.Matcher", "${rooms.key}")
                 val postedChallenge = challengeData.getValue(Challenge::class.java)!!
 
                 if (isChallengeCompat(postedChallenge)) {
+                    Log.d("MatchMaker.Matcher", "Match Found")
                     mSelectedChallenge = postedChallenge
                     challengeData.setValue(null)
                     return Transaction.success(rooms)
@@ -111,7 +114,7 @@ class FirebaseMatchMaker private constructor(
         override fun onComplete(p0: DatabaseError?, p1: Boolean, p2: DataSnapshot?) {
             if (mSelectedChallenge != null) {
                 var mOpener = mSelectedChallenge?.opener;
-                var mGamePath = mSelectedChallenge?.gameRef;
+                mGamePath = mSelectedChallenge?.gameRef;
                 Log.d("MatchMaker.Matcher", "Found match, onComplete");
                 onMatchFound(false)
             } else if (onMatchNotFoundFallback != null) {
@@ -144,7 +147,7 @@ class FirebaseMatchMaker private constructor(
         }
 
         override fun onComplete(p0: DatabaseError?, p1: Boolean, p2: DataSnapshot?) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.i("SelfChallengeManager", "mUploadedChallenge")
         }
         override fun onDataChange(data: DataSnapshot) {
             if (data.getValue() == null) {
@@ -178,5 +181,10 @@ class FirebaseMatchMaker private constructor(
     }
 
     @IgnoreExtraProperties
-    class Challenge(var opener : String?, var gameRef : String?)
+    class Challenge(var opener : String?, var gameRef : String?) {
+        @Exclude
+        fun toMap() : Map<String, Any?> {
+            return mapOf("opener" to opener, "gameRef" to gameRef)
+        }
+    }
 }

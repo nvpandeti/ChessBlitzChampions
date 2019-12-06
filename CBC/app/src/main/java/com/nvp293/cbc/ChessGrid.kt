@@ -13,15 +13,13 @@ import java.util.*
 /**
  * Created by cody on 9/23/15.
  */
-open class ChessGrid(var viewModel : ChessViewModel) {
+open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : ChessPieceSide) : FirebaseGameSynchronizer.Modulator{
 
     protected var boardArray = Array<Array<ChessPiece>>(8){i ->  Array<ChessPiece>(8) {j ->
         ChessPiece(ChessPieceSide.EMPTY, ChessPieceType.EMPTY, j, i)
     } }
 
     private var currentlySelectedPiece : ChessPiece? = null
-
-    private var currentTurn : ChessPieceSide = ChessPieceSide.WHITE
 
     val width get() = 8
     val height get() = 8
@@ -69,6 +67,21 @@ open class ChessGrid(var viewModel : ChessViewModel) {
 
     fun updateViewModel() {
         viewModel.updateBoard(boardArray.flatten())
+    }
+
+    override fun onReceiveMove(isSyncingPast : Boolean, moveString : String) {
+        var list = moveString.split(",")
+        movePiece(boardArray[list[0].toInt()][list[1].toInt()], boardArray[list[2].toInt()][list[3].toInt()])
+        var millis = list[4].toLong()
+        if (currentTurn == ChessPieceSide.WHITE) {
+            currentTurn = ChessPieceSide.BLACK
+        } else {
+            currentTurn = ChessPieceSide.WHITE
+        }
+        if(!isSyncingPast) {
+            //TODO
+            updateViewModel()
+        }
     }
 
     fun userClicked(row: Int, col: Int) {
@@ -364,6 +377,14 @@ open class ChessGrid(var viewModel : ChessViewModel) {
     }
 
     fun movePiece(oldSquare : ChessPiece, newSquare : ChessPiece) {
+        if(newSquare.type == ChessPieceType.KING) {
+            newSquare.side = oldSquare.side
+            newSquare.type = oldSquare.type
+            oldSquare.empty()
+            oldSquare.notYetMoved = false
+            //gameEnd()
+        }
+
         if(oldSquare.type == ChessPieceType.KING && abs(oldSquare.xPosition - newSquare.xPosition) == 2) {
             if(newSquare.xPosition == 6)
                 movePiece(boardArray[oldSquare.yPosition][7], boardArray[oldSquare.yPosition][5])

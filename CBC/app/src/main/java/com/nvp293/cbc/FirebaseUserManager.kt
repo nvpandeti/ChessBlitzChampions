@@ -42,10 +42,6 @@ class FirebaseUserManager private constructor(
         mUsersRef.addListenerForSingleValueEvent(userListener)
     }
 
-    interface OnGetUserCallback {
-        fun run(u: User?)
-    }
-
 }
 @IgnoreExtraProperties
 data class User(var blitzId: String = "", var elo: Int = 1000, var wins: Int = 0) {
