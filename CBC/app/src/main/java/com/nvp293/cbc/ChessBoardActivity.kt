@@ -37,11 +37,16 @@ class ChessBoardActivity : AppCompatActivity() {
         var mGamePath = bundle?.getString("mGamePath")?: throw Exception("mGamePath is null")
 
         viewModel = ViewModelProviders.of(this)[ChessViewModel::class.java]
+
+        gameSynchronizer = FirebaseGameSynchronizer.newInstance(mGamePath, ChessGrid(viewModel, ChessPieceSide.WHITE, ChessPieceSide.WHITE, null))
+
         if(isWhite) {
-            chessGrid = ChessGrid(viewModel, ChessPieceSide.WHITE)
+            chessGrid = ChessGrid(viewModel, ChessPieceSide.WHITE, ChessPieceSide.WHITE, gameSynchronizer)
         } else {
-            chessGrid = ChessGrid(viewModel, ChessPieceSide.BLACK)
+            chessGrid = ChessGrid(viewModel, ChessPieceSide.WHITE, ChessPieceSide.BLACK, gameSynchronizer)
         }
+
+        gameSynchronizer.attachModulator(chessGrid)
 
         viewModel.observeChessBoardList().observe(this, Observer {
             if(isWhite) {
@@ -61,7 +66,7 @@ class ChessBoardActivity : AppCompatActivity() {
 
         chessAdapter.setChessGrid(chessGrid)
 
-        gameSynchronizer = FirebaseGameSynchronizer.newInstance(mGamePath, chessGrid)
+
         var user = FirebaseAuth.getInstance().currentUser!!
         if(isWhite) {
             gameSynchronizer.createUser(ChessPieceSide.WHITE, user.uid)

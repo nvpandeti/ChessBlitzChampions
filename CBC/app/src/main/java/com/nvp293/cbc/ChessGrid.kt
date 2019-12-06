@@ -13,7 +13,7 @@ import java.util.*
 /**
  * Created by cody on 9/23/15.
  */
-open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : ChessPieceSide) : FirebaseGameSynchronizer.Modulator{
+open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : ChessPieceSide, var mySide : ChessPieceSide, var gameSynchronizer: FirebaseGameSynchronizer?) : FirebaseGameSynchronizer.Modulator{
 
     protected var boardArray = Array<Array<ChessPiece>>(8){i ->  Array<ChessPiece>(8) {j ->
         ChessPiece(ChessPieceSide.EMPTY, ChessPieceType.EMPTY, j, i)
@@ -78,6 +78,8 @@ open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : C
         } else {
             currentTurn = ChessPieceSide.WHITE
         }
+        currentlySelectedPiece = null
+        clearPossibleMoves()
         if(!isSyncingPast) {
             //TODO
             updateViewModel()
@@ -89,7 +91,7 @@ open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : C
         Log.i("UserClick", "$col $row ${piece.side} ${piece.type}")
 
         if(currentlySelectedPiece == null) {
-            if(piece.type != ChessPieceType.EMPTY && piece.side == currentTurn) {
+            if(piece.type != ChessPieceType.EMPTY && piece.side == currentTurn && currentTurn == mySide) {
                 highlightPossibleMoves(piece)
                 currentlySelectedPiece = piece
                 updateViewModel()
@@ -104,6 +106,7 @@ open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : C
                 } else {
                     currentTurn = ChessPieceSide.WHITE
                 }
+                gameSynchronizer?.sendMoveMsg("${currentlySelectedPiece?.xPosition},${currentlySelectedPiece?.yPosition},${piece.xPosition}, ${piece.yPosition}, 345")
                 currentlySelectedPiece = null
                 updateViewModel()
             } else {
