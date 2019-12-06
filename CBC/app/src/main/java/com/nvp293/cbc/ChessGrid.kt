@@ -71,9 +71,9 @@ open class ChessGrid(var viewModel : ChessViewModel) {
         viewModel.updateBoard(boardArray.flatten())
     }
 
-    fun userClicked(position: Int) {
-        var piece = getPieceAtIndex(position)
-        Log.i("UserClick", "$position ${piece.side} ${piece.type}")
+    fun userClicked(row: Int, col: Int) {
+        var piece = boardArray[row][col]
+        Log.i("UserClick", "$col $row ${piece.side} ${piece.type}")
 
         if(currentlySelectedPiece == null) {
             if(piece.type != ChessPieceType.EMPTY && piece.side == currentTurn) {
@@ -118,50 +118,50 @@ open class ChessGrid(var viewModel : ChessViewModel) {
     }
 
     fun highlightPossibleMoves(piece : ChessPiece) {
-        var squaresToHighlight = mutableListOf<Int>()
-        var checkPos = -1
+        var squaresToHighlight = mutableListOf<ChessPiece>()
+        var checkPiece : ChessPiece? = null
         when(piece.type) {
             ChessPieceType.PAWN -> {
                 if(piece.side == ChessPieceSide.WHITE) {
-                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition, ChessPieceSide.EMPTY)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition - 1, piece.xPosition, ChessPieceSide.EMPTY)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                         if(piece.notYetMoved) {
-                            checkPos = checkIfSide(piece.yPosition - 2, piece.xPosition, ChessPieceSide.EMPTY)
-                            if(checkPos != -1) {
-                                squaresToHighlight.add(checkPos)
+                            checkPiece = checkIfSide(piece.yPosition - 2, piece.xPosition, ChessPieceSide.EMPTY)
+                            if(checkPiece != null) {
+                                squaresToHighlight.add(checkPiece)
                             }
                         }
                     }
-                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition - 1, ChessPieceSide.BLACK)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition - 1, piece.xPosition - 1, ChessPieceSide.BLACK)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                     }
 
-                    checkPos = checkIfSide(piece.yPosition - 1, piece.xPosition + 1, ChessPieceSide.BLACK)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition - 1, piece.xPosition + 1, ChessPieceSide.BLACK)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                     }
 
                 } else if (piece.side == ChessPieceSide.BLACK) {
-                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition, ChessPieceSide.EMPTY)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition + 1, piece.xPosition, ChessPieceSide.EMPTY)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                         if(piece.notYetMoved) {
-                            checkPos = checkIfSide(piece.yPosition + 2, piece.xPosition, ChessPieceSide.EMPTY)
-                            if(checkPos != -1) {
-                                squaresToHighlight.add(checkPos)
+                            checkPiece = checkIfSide(piece.yPosition + 2, piece.xPosition, ChessPieceSide.EMPTY)
+                            if(checkPiece != null) {
+                                squaresToHighlight.add(checkPiece)
                             }
                         }
                     }
-                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition - 1, ChessPieceSide.WHITE)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition + 1, piece.xPosition - 1, ChessPieceSide.WHITE)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                     }
 
-                    checkPos = checkIfSide(piece.yPosition + 1, piece.xPosition + 1, ChessPieceSide.WHITE)
-                    if(checkPos != -1) {
-                        squaresToHighlight.add(checkPos)
+                    checkPiece = checkIfSide(piece.yPosition + 1, piece.xPosition + 1, ChessPieceSide.WHITE)
+                    if(checkPiece != null) {
+                        squaresToHighlight.add(checkPiece)
                     }
                 }
             }
@@ -176,18 +176,19 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                     loop@ while (true) {
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
-                        checkPos = y * 8 + x
+
                         if(checkBounds(y, x)) {
-                            when( boardArray[y][x].side) {
+                            checkPiece = boardArray[y][x]
+                            when( checkPiece.side) {
                                 enemySide -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                     break@loop
                                 }
                                 piece.side -> {
                                     break@loop
                                 }
                                 ChessPieceSide.EMPTY -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                 }
                             }
                         } else {
@@ -207,18 +208,19 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                     loop@ while (dist == 1) {
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
-                        checkPos = y * 8 + x
+
                         if(checkBounds(y, x)) {
-                            when( boardArray[y][x].side) {
+                            checkPiece = boardArray[y][x]
+                            when( checkPiece.side) {
                                 enemySide -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                     break@loop
                                 }
                                 piece.side -> {
                                     break@loop
                                 }
                                 ChessPieceSide.EMPTY -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                 }
                             }
                         } else {
@@ -239,18 +241,18 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                     loop@ while (true) {
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
-                        checkPos = y * 8 + x
                         if(checkBounds(y, x)) {
-                            when( boardArray[y][x].side) {
+                            checkPiece = boardArray[y][x]
+                            when( checkPiece.side) {
                                 enemySide -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                     break@loop
                                 }
                                 piece.side -> {
                                     break@loop
                                 }
                                 ChessPieceSide.EMPTY -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                 }
                             }
                         } else {
@@ -272,18 +274,19 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                     loop@ while (true) {
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
-                        checkPos = y * 8 + x
+
                         if(checkBounds(y, x)) {
-                            when( boardArray[y][x].side) {
+                            checkPiece = boardArray[y][x]
+                            when( checkPiece.side) {
                                 enemySide -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                     break@loop
                                 }
                                 piece.side -> {
                                     break@loop
                                 }
                                 ChessPieceSide.EMPTY -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                 }
                             }
                         } else {
@@ -303,21 +306,22 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                 for(dir in dirs) {
                     var dist = 1
                     loop@ while (dist == 1) {
-                        Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
+                        //Log.i("BISHOP", squaresToHighlight.joinToString(prefix = "[", postfix = "]") { it.toString() })
                         var y = piece.yPosition + dist * dir.first
                         var x = piece.xPosition + dist * dir.second
-                        checkPos = y * 8 + x
+
                         if(checkBounds(y, x)) {
-                            when( boardArray[y][x].side) {
+                            checkPiece = boardArray[y][x]
+                            when( checkPiece.side) {
                                 enemySide -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                     break@loop
                                 }
                                 piece.side -> {
                                     break@loop
                                 }
                                 ChessPieceSide.EMPTY -> {
-                                    squaresToHighlight.add(checkPos)
+                                    squaresToHighlight.add(checkPiece)
                                 }
                             }
                         } else {
@@ -333,9 +337,9 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                         if(boardArray[piece.yPosition][i].side != ChessPieceSide.EMPTY)
                             spacesOpen = false
                     }
-                    checkPos = piece.yPosition * 8 + piece.xPosition - 2
+                    checkPiece = boardArray[piece.yPosition][piece.xPosition - 2]
                     if(spacesOpen)
-                        squaresToHighlight.add(checkPos)
+                        squaresToHighlight.add(checkPiece)
                 }
                 if(piece.notYetMoved && boardArray[piece.yPosition][7].notYetMoved) {
                     var spacesOpen = true
@@ -343,9 +347,9 @@ open class ChessGrid(var viewModel : ChessViewModel) {
                         if(boardArray[piece.yPosition][i].side != ChessPieceSide.EMPTY)
                             spacesOpen = false
                     }
-                    checkPos = piece.yPosition * 8 + piece.xPosition + 2
+                    checkPiece = boardArray[piece.yPosition][piece.xPosition + 2]
                     if(spacesOpen)
-                        squaresToHighlight.add(checkPos)
+                        squaresToHighlight.add(checkPiece)
                 }
 
             }
@@ -355,7 +359,7 @@ open class ChessGrid(var viewModel : ChessViewModel) {
         }
 
         for(i in squaresToHighlight) {
-            getPieceAtIndex(i).highlight = true
+            i.highlight = true
         }
     }
 
@@ -387,12 +391,12 @@ open class ChessGrid(var viewModel : ChessViewModel) {
     }
 
 
-    fun checkIfSide(yPos: Int, xPos: Int, enemySide: ChessPieceSide) : Int{
+    fun checkIfSide(yPos: Int, xPos: Int, enemySide: ChessPieceSide) : ChessPiece?{
         if(checkBounds(yPos, xPos)
             && boardArray[yPos][xPos].side.equals(enemySide)) {
-            return yPos * 8 + xPos
+            return boardArray[yPos][xPos]
         } else {
-            return -1
+            return null
         }
     }
 }

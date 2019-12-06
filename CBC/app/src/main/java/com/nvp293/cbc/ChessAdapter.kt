@@ -6,18 +6,15 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import java.lang.Exception
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 
-class ChessAdapter(private val mContext: Context)
+class ChessAdapter(private val mContext: Context)// : ArrayAdapter<ChessPiece>() {
     : ListAdapter<ChessPiece, ChessAdapter.VH>(PieceDiff()) {
 
     private lateinit var chessGrid : ChessGrid
@@ -38,7 +35,7 @@ class ChessAdapter(private val mContext: Context)
                     && oldItem.type == newItem.type
                     && oldItem.xPosition == newItem.xPosition
                     && oldItem.yPosition == newItem.yPosition
-                    && oldItem.highlight == newItem.highlight && false
+                    && oldItem.highlight == newItem.highlight
         }
     }
 
@@ -47,21 +44,22 @@ class ChessAdapter(private val mContext: Context)
 
         private var bkgIV = itemView.findViewById<ImageView>(R.id.square_background)
         private var chessIV = itemView.findViewById<ImageView>(R.id.piece)
-        private var pos = -1
+        private var row = -1
+        private var col = -1
 
         init {
             bkgIV.setOnClickListener {
-                if(pos >= 0) {
-                    chessGrid.userClicked(pos)
+                if(row >= 0) {
+                    chessGrid.userClicked(row, col)
+                    notifyDataSetChanged()
                 }
             }
         }
 
-        fun bind(piece : ChessPiece?, position: Int) {
-            pos = position
-            var row = position / 8
-            var col = position % 8
-            //Log.i("bind", "pos $col $row ${piece?.side} ${piece?.type}")
+        fun bind(piece : ChessPiece) {
+            row = piece?.yPosition
+            col = piece?.xPosition
+            Log.i("bind", "pos $col $row ${piece?.side} ${piece?.type}")
 
             if((row + col) % 2 == 0) {
                 if(piece?.highlight == true) {
@@ -115,15 +113,12 @@ class ChessAdapter(private val mContext: Context)
         val itemView = LayoutInflater.from(mContext)
             .inflate(R.layout.board_square, parent, false)
         var holder = VH(itemView)
-        //holder.setIsRecyclable(false)
+        holder.setIsRecyclable(false)
         return holder
+        //return VH(itemView)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(getItem(position), position)
-    }
-
-    override fun submitList(list: List<ChessPiece>?) {
-        super.submitList(if (list != null) ArrayList(list) else null)
+        holder.bind(getItem(position)?: throw Exception())
     }
 }

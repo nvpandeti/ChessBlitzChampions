@@ -24,23 +24,12 @@ class ChessBoardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chess_board)
 
-        /*
-        var grid = ChessGrid(8, 8)
-        var gridView = ChessGridView(applicationContext, 8, 8)
-        gridView.setChessGrid(grid)
-        boardFrame.addView(gridView)
-        */
-
         viewModel = ViewModelProviders.of(this)[ChessViewModel::class.java]
 
         chessGrid = ChessGrid(viewModel)
 
         viewModel.observeChessBoardList().observe(this, Observer {
-            var newList = ArrayList<ChessPiece>()
-            for (p in it) {
-                newList.add(ChessPiece(p.side, p.type, p.xPosition, p.yPosition, p.highlight, p.notYetMoved))
-            }
-            chessAdapter.submitList(newList)
+            chessAdapter.submitList(it.reversed())
         })
 
         Log.i("CreateView", "ChessBoardActivity")
