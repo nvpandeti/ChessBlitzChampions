@@ -23,6 +23,7 @@ class ChessBoardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chess_board)
+        supportActionBar?.hide()
 
         viewModel = ViewModelProviders.of(this)[ChessViewModel::class.java]
 

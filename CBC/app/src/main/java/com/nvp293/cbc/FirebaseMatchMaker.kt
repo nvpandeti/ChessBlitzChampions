@@ -14,9 +14,7 @@ class FirebaseMatchMaker private constructor(
         fun run(c: FirebaseMatchMaker)
     }
 
-    val RANDOM_ROOM_ID = "/Globl"
-    val ROOM_ID = "/GameRooms"
-    val GAMES_RECORD = "/OpenGameMoves"
+
 
     private val mOwnChallengeRef: DatabaseReference? = null
 
@@ -57,11 +55,17 @@ class FirebaseMatchMaker private constructor(
         mUserRoomRef.runTransaction(mSelfChallengeCanceller!!)
     }
 
-    fun newInstance(userRoom: String, onComplete: OnMatchMadeCallback): FirebaseMatchMaker {
-        return FirebaseMatchMaker(
-            FirebaseDatabase.getInstance().getReference("$ROOM_ID/$userRoom"), onComplete
-        )
+    companion object {
+        val RANDOM_ROOM_ID = "/Globl"
+        val ROOM_ID = "/GameRooms"
+        val GAMES_RECORD = "/OpenGameMoves"
+        fun newInstance(userRoom: String, onComplete: OnMatchMadeCallback): FirebaseMatchMaker {
+            return FirebaseMatchMaker(
+                FirebaseDatabase.getInstance().getReference("$ROOM_ID/$userRoom"), onComplete
+            )
+        }
     }
+
 
 
 

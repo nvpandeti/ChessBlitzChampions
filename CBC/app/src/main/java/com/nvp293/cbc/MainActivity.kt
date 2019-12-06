@@ -30,11 +30,13 @@ class MainActivity : AppCompatActivity() {
     companion object {
 
         private const val RC_SIGN_IN = 123
+        private const val RC_SETTINGS = 100
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.hide()
 
         // Choose authentication providers
         val providers = arrayListOf(
@@ -47,33 +49,24 @@ class MainActivity : AppCompatActivity() {
             AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setTheme(R.style.LoginTheme)
+                .setLogo(R.drawable.logo)
                 .build(),
             RC_SIGN_IN)
 
-        /*
-        setDisplayName.setOnClickListener {
-            val user = FirebaseAuth.getInstance().currentUser
-            val displayName = displayNameET.text.toString()
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .build()
-            user?.updateProfile(profileUpdates)
-                ?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("update", "User profile updated.")
-                        userTV.text = getDisplayString(user?.displayName, user?.email)
-                    }
-                }
-        }
-        */
         findMatchBut.setOnClickListener {
             val findMatchIntent = Intent(this, ChessBoardActivity::class.java)
             val myExtras = Bundle()
             val user = FirebaseAuth.getInstance().currentUser
-            myExtras.putString("name", user?.displayName);
+            myExtras.putString("name", user?.displayName)
             findMatchIntent.putExtras(myExtras)
             val result = 1
             startActivityForResult(findMatchIntent, result)
+        }
+
+        settings.setOnClickListener {
+            val settingsIntent = Intent(this, SettingsActivity::class.java)
+            startActivityForResult(settingsIntent, RC_SETTINGS)
         }
 
     }
@@ -84,21 +77,40 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == RC_SIGN_IN) {
             val response = IdpResponse.fromResultIntent(data)
 
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK && response != null) {
                 // Successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
-                userTV.text = getDisplayString(user?.displayName, user?.email)
-                // ...
+                if(response.isNewUser) {
+                    var userManager = FirebaseUserManager.newInstance(user?.uid!!)
+                    userManager.createNewUser(user?.displayName!!)
+                    userManager.getUser {
+                        if(it != null)
+                            userTV.text = getDisplayString(it)
+                    }
+                } else {
+                    var userManager = FirebaseUserManager.newInstance(user?.uid!!)
+                    userManager.getUser {
+                        if(it != null)
+                            userTV.text = getDisplayString(it)
+                    }
+                }
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
                 // ...
             }
+        } else if(requestCode == RC_SETTINGS) {
+            val user = FirebaseAuth.getInstance().currentUser
+            var userManager = FirebaseUserManager.newInstance(user?.uid!!)
+            userManager.getUser {
+                if(it != null)
+                    userTV.text = getDisplayString(it)
+            }
         }
     }
 
-    fun getDisplayString(name : String?, email : String?) : String{
-        return "User: $name\nEmail: $email"
+    fun getDisplayString(user: User) : String{
+        return "Welcome back, ${user.blitzId}\nELO: ${user.elo}\nWins: ${user.wins}"
     }
 }

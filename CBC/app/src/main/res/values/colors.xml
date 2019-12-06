@@ -9,4 +9,6 @@
 
     <color name="lightSquareHighlight">#dbd953</color>
     <color name="darkSquareHighlight">#9b9903</color>
+
+    <color name="woodenColorBkg">#ad8c05</color>
 </resources>

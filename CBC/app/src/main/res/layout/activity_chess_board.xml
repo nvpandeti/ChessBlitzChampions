@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ChessBoardActivity">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/hd_wood_bkg"
+            android:scaleType = "centerCrop"/>
+    </FrameLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="320dp"

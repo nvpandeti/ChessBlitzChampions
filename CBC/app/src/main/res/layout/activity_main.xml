@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/hd_wood_bkg"
+            android:scaleType = "centerCrop"/>
+    </FrameLayout>
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,7 +32,8 @@
         android:id="@+id/settings"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/ic_settings_black_24dp"/>
+        android:src="@drawable/ic_settings_black_24dp"
+        android:backgroundTint="@color/woodenColorBkg"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -41,8 +52,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/userTV"
         android:text="Hello World!"
+        android:textSize="12pt"
+        android:textColor="@color/lightSquareHighlight"
+        android:background="@drawable/rounded_edit_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/findMatchBut"
+        android:gravity="center_horizontal"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
