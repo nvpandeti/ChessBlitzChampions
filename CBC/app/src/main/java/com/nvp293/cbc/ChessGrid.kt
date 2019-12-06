@@ -82,8 +82,9 @@ open class ChessGrid(var viewModel : ChessViewModel, private var currentTurn : C
         clearPossibleMoves()
         if(!isSyncingPast) {
             //TODO
-            updateViewModel()
+
         }
+        updateViewModel()
     }
 
     fun userClicked(row: Int, col: Int) {
