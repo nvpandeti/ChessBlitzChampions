@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
                         val findMatchIntent = Intent(applicationContext, ChessBoardActivity::class.java)
                         val myExtras = Bundle()
                         val user = FirebaseAuth.getInstance().currentUser
+
                         myExtras.putString("mGamePath", c.mGamePath)
                         myExtras.putBoolean("isWhite", c.isThisWhite())
                         findMatchIntent.putExtras(myExtras)

@@ -98,6 +98,9 @@ class FirebaseMatchMaker private constructor(
             Log.d("MatchMaker.Matcher do", "${rooms.key}")
             for (challengeData in rooms.getChildren()) {
                 Log.d("MatchMaker.Matcher", "${challengeData.key}")
+                if(challengeData?.key?.equals("sad") != false) {
+                    continue
+                }
                 val postedChallenge = challengeData.getValue(Challenge::class.java)!!
 
                 if (isChallengeCompat(postedChallenge)) {
