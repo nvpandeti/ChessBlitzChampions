@@ -74,6 +74,8 @@ class ChessBoardActivity : AppCompatActivity() {
             gameSynchronizer.createUser(ChessPieceSide.BLACK, user.uid)
         }
 
+        gameSynchronizer.startSync()
+
         newGame()
     }
 
@@ -123,5 +125,21 @@ class ChessBoardActivity : AppCompatActivity() {
                 launch{timerJob.cancelAndJoin()}
             }
         }*/
+    }
+
+    override fun onStop() {
+        gameSynchronizer.stopSync()
+        super.onStop()
+    }
+
+    override fun onResume() {
+        gameSynchronizer.startSync()
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        gameSynchronizer.flush()
+        gameSynchronizer.detachModulator()
+        super.onDestroy()
     }
 }
