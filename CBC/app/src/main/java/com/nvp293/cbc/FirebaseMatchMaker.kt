@@ -40,9 +40,9 @@ class FirebaseMatchMaker private constructor(
                     mUserRoomRef.runTransaction(mSelfChallengeManager!!)
                 }
             }
-
+            Log.i("findMatch", "find")
             mMatcher = Matcher(onMatchNotFoundFallback)
-            mUserRoomRef.runTransaction(mMatcher!!)
+            FirebaseDatabase.getInstance().getReference("$ROOM_ID").runTransaction(mMatcher!!)
         }).start()
     }
 
@@ -95,8 +95,9 @@ class FirebaseMatchMaker private constructor(
         }
 
         override fun doTransaction(rooms: MutableData): Transaction.Result {
+            Log.d("MatchMaker.Matcher do", "${rooms.key}")
             for (challengeData in rooms.getChildren()) {
-                Log.d("MatchMaker.Matcher", "${rooms.key}")
+                Log.d("MatchMaker.Matcher", "${challengeData.key}")
                 val postedChallenge = challengeData.getValue(Challenge::class.java)!!
 
                 if (isChallengeCompat(postedChallenge)) {
@@ -125,13 +126,12 @@ class FirebaseMatchMaker private constructor(
 
     inner class SelfChallengeManager : Transaction.Handler, ValueEventListener {
 
-        protected var mUploadedChallenge: Challenge = Challenge(
-            FirebaseAuth.getInstance().currentUser!!.uid, null
-        )
+        protected var mUploadedChallenge: Challenge = Challenge()
         lateinit var mChallengeRef: DatabaseReference
         lateinit var mGameRecordRef: DatabaseReference
 
         override fun doTransaction(p0: MutableData): Transaction.Result {
+            mUploadedChallenge.opener = FirebaseAuth.getInstance().currentUser!!.uid
             mGameRecordRef = FirebaseDatabase.getInstance().getReference()
                 .child(GAMES_RECORD)
                 .push()
@@ -181,7 +181,9 @@ class FirebaseMatchMaker private constructor(
     }
 
     @IgnoreExtraProperties
-    class Challenge(var opener : String?, var gameRef : String?) {
+    class Challenge() {
+        var opener : String? = null
+        var gameRef : String? = null
         @Exclude
         fun toMap() : Map<String, Any?> {
             return mapOf("opener" to opener, "gameRef" to gameRef)

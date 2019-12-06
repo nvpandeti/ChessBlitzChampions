@@ -59,7 +59,7 @@ class ChessAdapter(private val mContext: Context)// : ArrayAdapter<ChessPiece>()
         fun bind(piece : ChessPiece) {
             row = piece?.yPosition
             col = piece?.xPosition
-            Log.i("bind", "pos $col $row ${piece?.side} ${piece?.type}")
+            //Log.i("bind", "pos $col $row ${piece?.side} ${piece?.type}")
 
             if((row + col) % 2 == 0) {
                 if(piece?.highlight == true) {
