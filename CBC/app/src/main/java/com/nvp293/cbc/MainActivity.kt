@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                         val findMatchIntent = Intent(applicationContext, ChessBoardActivity::class.java)
                         val myExtras = Bundle()
                         val user = FirebaseAuth.getInstance().currentUser
-
+                        Log.i("run after find", "${c.mGamePath} ${c.isThisWhite()}")
                         myExtras.putString("mGamePath", c.mGamePath)
                         myExtras.putBoolean("isWhite", c.isThisWhite())
                         findMatchIntent.putExtras(myExtras)
@@ -137,14 +137,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        if(matchMaker != null) {
+        if(matchMaker != null && findingMatch == true) {
             matchMaker?.stop()
         }
         super.onStop()
     }
 
     override fun onDestroy() {
-        if(matchMaker != null) {
+        if(matchMaker != null && findingMatch == true) {
             matchMaker?.stop()
         }
         super.onDestroy()

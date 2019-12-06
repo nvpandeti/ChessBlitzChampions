@@ -73,6 +73,7 @@ class FirebaseMatchMaker private constructor(
     protected var mIsThisWhite: Boolean = false
 
     protected fun onMatchFound(isWhite: Boolean) {
+        Log.i("onMatchFound", "$isWhite")
         mIsThisWhite = isWhite
         mLocalPlayerIndex = if (isWhite) 1 else 0
         mOnComplete.run(this)
@@ -95,31 +96,34 @@ class FirebaseMatchMaker private constructor(
         }
 
         override fun doTransaction(rooms: MutableData): Transaction.Result {
-            Log.d("MatchMaker.Matcher do", "${rooms.key}")
-            for (challengeData in rooms.getChildren()) {
-                Log.d("MatchMaker.Matcher", "${challengeData.key}")
-                if(challengeData?.key?.equals("sad") != false) {
+            Log.i("MatchMaker.Matcher do", "${rooms.key}")
+            for (challenge in rooms.getChildren()) {
+                if (challenge?.key?.equals("sad") != false) {
                     continue
                 }
-                val postedChallenge = challengeData.getValue(Challenge::class.java)!!
+                for (challengeData in challenge.getChildren()) {
+                    Log.i("MatchMaker.Matcher", "${challengeData.key}")
 
-                if (isChallengeCompat(postedChallenge)) {
-                    Log.d("MatchMaker.Matcher", "Match Found")
-                    mSelectedChallenge = postedChallenge
-                    challengeData.setValue(null)
-                    return Transaction.success(rooms)
+                    val postedChallenge = challengeData.getValue(Challenge::class.java)!!
+
+                    if (isChallengeCompat(postedChallenge)) {
+                        Log.i("MatchMaker", "Match Found")
+                        mSelectedChallenge = postedChallenge
+                        challengeData.setValue(null)
+                        return Transaction.success(rooms)
+                    }
                 }
             }
 
-            Log.d("MatchMaker.Matcher", "Didn't find any matching challenge")
+            Log.i("MatchMaker.Matcher", "Didn't find any matching challenge")
             return Transaction.success(rooms)
         }
 
         override fun onComplete(p0: DatabaseError?, p1: Boolean, p2: DataSnapshot?) {
             if (mSelectedChallenge != null) {
-                var mOpener = mSelectedChallenge?.opener;
-                mGamePath = mSelectedChallenge?.gameRef;
-                Log.d("MatchMaker.Matcher", "Found match, onComplete");
+                var mOpener = mSelectedChallenge?.opener
+                mGamePath = mSelectedChallenge?.gameRef
+                Log.i("MatchMaker on", "Found match, onComplete ${mSelectedChallenge?.gameRef}")
                 onMatchFound(false)
             } else if (onMatchNotFoundFallback != null) {
                 onMatchNotFoundFallback.onFail()
